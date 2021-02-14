@@ -1,0 +1,210 @@
+---
+title: "Homework 1"
+author: "Justin Clifton"
+date: "2/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Homework 1
+
+
+```{r}
+library(ISLR)
+auto <- na.omit(Auto)
+attach(Auto)
+summary(auto)
+```
+# Question 8 
+
+a\)
+
+>Use the lm() function to perform a simple linear regression with mpg as the response and horsepower as the predictor. Use the summary() function to print the results. Comment on the output. 
+
+```{r}
+model <- lm(formula = mpg ~ horsepower, data = auto)
+summary(model)
+coefs <- coef(model)
+coefs
+eq <- 39.9358610 -0.1578447 * 98
+eq
+```
+
+
+> i. Is there a relationship between the predictor and the re-sponse?
+
+The F-statistic of 599.7>1 in combination with the small p-value indicates that the null hypothesis is false and that there is a relationship between the predictor and the response. 
+
+> ii. How strong is the relationship between the predictor andthe response?
+
+
+According to our $R^2$ statistic, horsepower explains $60\%$ of the variance in mpg. This is a relatively strong relationship.
+
+> iii. Is the relationship between the predictor and the responsepositive or negative?
+
+Based on the sign of the slope, we can say there negative relationship between horsepower and MPG. For every 1 horsepower increase, the MPG of the car goes down by -0.1578 gallons.
+
+> iv. What is the predicted mpg associated with a horsepower of 98? What are the associated 95 % confidence and prediction intervals?
+
+$24.46708 = 39.9358610 -0.1578447 * 98$
+
+```{r}
+confint(model, level = 0.95)
+predict(model,data.frame(horsepower=c(98)),interval="confidence")
+predict(model,data.frame(horsepower=c(98)),interval="prediction")
+```
+
+b\)
+
+> Plot the response and the predictor. Use the abline() function to display the least squares regression line.
+
+```{r, echo=FALSE}
+plot(horsepower, mpg)
+abline(model)
+```
+
+c\)
+
+> Use the plot() function to produce diagnostic plots of the least squares regression fit. Comment on any problems you see with the fit.
+
+```{r, echo=FALSE}
+plot(model)
+```
+
+The residuals appear to have a quadratic pattern to them. This might mean that our data is not linear and we are failing to capture some of the patterns in the data.
+
+# Question 9
+
+a\)
+
+> Produce a scatterplot matrix which includes all of the variables in the data set.
+
+
+```{r, echo=FALSE}
+pairs(auto)
+```
+
+b\) 
+
+> Compute the matrix of correlations between the variables using the function cor(). You will need to exclude the name variable,cor() which is qualitative.
+
+```{r, echo=FALSE}
+cor(auto[sapply(auto, is.numeric)])
+```
+
+c\) 
+
+> Use the lm() function to perform a multiple linear regression with mpg as the response and all other variables except name as the predictors.Use the summary() function to print the results.Comment on the output. For instance:
+
+```{r}
+
+model2 <- lm(mpg~., data = auto[,-9])
+summary(model2)
+```
+
+> i. Is there a relationship between the predictors and the response?
+
+The F-statistic of 252.4>1 in combination with the small p-value indicates that the null hypothesis is false and that there is a relationship between the predictor and the response. 
+
+> ii. Which predictors appear to have a statistically significant relationship to the response?
+
+Cylinders, displacement,weight,year,origin,
+
+> iii. What does the coefficient for the year variable suggest?
+
+For every 1 year MPG increases by 0.750. 
+
+e\)
+
+>Use the * and : symbols to fit linear regression models with interaction effects. Do any interactions appear to be statistically significant?
+
+```{r}
+model3 <- lm(mpg~displacement*acceleration + weight + year + origin, data = auto[,-9])
+summary(model3)
+```
+
+Displacement:acceleration seems to be statistically significant.
+
+f\) 
+
+> Try a few different transformations of the variables, such as $log(X), sqrt(X), X^2$. Comment on your findings.
+
+```{r}
+model4 <- lm(mpg~ I(cylinders^2) + weight + year + origin, data = auto[,-9])
+summary(model4)
+
+model5 <- lm(mpg~ I(cylinders^(1/2)) + log(weight) + year + origin, data = auto[,-9])
+summary(model5)
+
+
+```
+
+Only one of the transformations appears to be significant. The log of the weight. 
+
+# Question 10
+
+a\)
+
+> Fit a multiple regression model to predict Sales using Price,Urban,and US.
+
+```{r}
+data("Carseats", package = "ISLR")
+summary(Carseats)
+
+cs_model1 <-  lm(Sales ~ Price + Urban + US, data = Carseats)
+summary(cs_model1)
+```
+
+b\)
+
+> Provide an interpretation of each coefficient in the model. Be careful—some of the variables in the model are qualitative!
+
+```{r}
+data("Carseats", package = "ISLR")
+summary(Carseats)
+
+cs_model1 <-  lm(Sales ~ Price + Urban + US, data = Carseats)
+summary(cs_model1)
+```
+
+> Price, and USYes are both significant, however UrbanYes is not. 
+
+c\)
+> Write out the model in equation form, being careful to handle the qualitative variables properly.
+
+Sales = 13.04 + -0.05 Price + -0.02 UrbanYes + 1.20 USYes
+
+d\) 
+
+>For which of the predictors can you reject the null hypothesis $H_0$: $β_j=0$?
+
+Price and USYes because of their low p-values.
+
+e\)
+
+> On the basis of your response to the previous question, fit a smaller model that only uses the predictors for which there is evidence of association with the outcome.
+
+```{r}
+
+cs_model3 <-  lm(Sales ~ Price + US, data = Carseats)
+summary(cs_model3)
+```
+
+f\)
+
+>How well do the models in (a) and (e) fit the data?
+
+They fit the data about the same, however I would say that neither of them describe the data particuarly well due to their low $R^2$ scores. 
+
+g\)
+
+> Using the model from (e), obtain 95 % confidence intervals forthe coefficient(s).
+
+```{r}
+confint(cs_model3, level = 0.95)
+```
+
+
